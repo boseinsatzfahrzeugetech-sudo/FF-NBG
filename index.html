@@ -391,7 +391,6 @@
         let reports = [];
         let currentPage = "home";
 
-        // ---------- SPEICHER ----------
         function saveData() {
             localStorage.setItem("ff_reports", JSON.stringify(reports));
             localStorage.setItem("ff_vehicles_retired", JSON.stringify(vehiclesRetired));
@@ -422,7 +421,6 @@
             alert(`🔧 ${v.name}\n\nFunk: ${v.funk || "kein"}\nBaujahr: ${v.baujahr || "?"}\nBesatzung: ${v.besatzung || "keine (Anhänger)"}\n\nTechnik:\n${v.details || v.text}`);
         }
 
-        // ---------- RENDER ----------
         function renderHome() {
             return `
                 <div class="hero">
@@ -488,4 +486,213 @@
 
         function renderHistory() {
             return `
-                <h2>📖
+                <h2>📖 Geschichte der Freiwilligen Feuerwehr Nürnberg</h2>
+                <div class="history-text">
+                    <p>Die Wurzeln der heutigen Freiwilligen Feuerwehr Nürnberg reichen bis in die Mitte des 19. Jahrhunderts zurück. Um etwa 1850 entstand in der Stadt eine erste organisierte Bürger- und Wachstruktur im Bereich des Brandschutzes.</p>
+                    <p>Im Jahr 1869 wurde diese ursprüngliche Wachstruktur wieder aufgelöst. Zwischen 1898 und 1925 existierte keine eigenständige Struktur. 1925 erfolgte die Neugründung in einer ehemaligen Halle der Berufsfeuerwehr.</p>
+                    <p>Lange Zeit war die Einheit nur Reserveeinheit bei der Berufsfeuerwehr. Das erste eigene Löschfahrzeug war das LF 16 TS (LSHD), das ca. 1965 beschafft wurde. Es folgte ein LF 15 (Magirus-Deutz), das von einer befreundeten Ortswehr übernommen wurde.</p>
+                    <p>Im Jahr 1985 wurde ein VW Golf als Dienstfahrzeug angeschafft, 2000 abgelöst durch einen VW T4 (Eigenausbau zum MTW). 1995 wurde ein LF 16/12 von der BF übernommen.</p>
+                    <p>Nach der Wiedervereinigung wurde eine TSA übernommen, 2001 eine Feldküche, 2008 Umbau zum FwA-Umwelt. 2010 wurde das HLF 16/25 übernommen, 2012 der GW-L1.</p>
+                    <p>2022 erfolgte der Umzug in die provisorische Rettungswache. 2025 kam der GW Drohne hinzu. 2026 stehen große Veränderungen an: GW-L1 und HLF werden außer Dienst gestellt, Ersatz ist geplant. Das LF 20 KatS wartet auf seine Indienststellung.</p>
+                    <p>Heute ist die FF Nürnberg eine moderne, flexibel strukturierte Einheit mit Fahrzeugen aus Feuerwehr, KatS, Umwelttechnik und Wasserrettung.</p>
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            const approved = reports.filter(r => r.status === "approved").reverse();
+            return `
+                <h2>📋 Einsatzberichte</h2>
+                <button id="showReportFormBtn" class="report-btn">+ Bericht einreichen</button>
+                <div id="reportFormContainer" style="display:none; margin-bottom:2rem;">
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>Neuen Einsatzbericht einreichen</h3>
+                            <div class="form-group"><label>Dein Name (Benutzername):</label><input type="text" id="reportAuthor" placeholder="z. B. Max Mustermann"></div>
+                            <div class="form-group"><label>Titel:</label><input type="text" id="reportTitle"></div>
+                            <div class="form-group"><label>Datum:</label><input type="date" id="reportDate"></div>
+                            <div class="form-group"><label>Einsatzort:</label><input type="text" id="reportLocation"></div>
+                            <div class="form-group"><label>Beteiligte Fahrzeuge:</label><div id="vehicleCheckboxes">${vehiclesActive.filter(v => !v.category).map(v => `<label style="display:inline-block; margin-right:1rem;"><input type="checkbox" value="${v.id}" data-name="${escapeHtml(v.name)}"> ${escapeHtml(v.name)}</label>`).join("")}</div></div>
+                            <div class="form-group"><label>Andere Organisationen:</label><input type="text" id="otherOrgs" placeholder="Polizei, THW, Luftrettung..."></div>
+                            <div class="form-group"><label>Gruppenführer / Truppführer:</label><input type="text" id="groupLeader" placeholder="z. B. OBM Mustermann"></div>
+                            <div class="form-group"><label>Einsatzleiter (optional):</label><input type="text" id="incidentCommander" placeholder="kann freigelassen werden"></div>
+                            <div class="form-group"><label>Einsatzbericht:</label><textarea id="reportText" rows="6"></textarea></div>
+                            <button id="submitReportBtn">Einreichen</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid">
+                    ${approved.map(r => `
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="card-title">${escapeHtml(r.title)}</div>
+                                <div>📅 ${r.date} | 📍 ${r.location}</div>
+                                <p>${escapeHtml(r.text)}</p>
+                                <div><strong>👤 Autor:</strong> ${escapeHtml(r.author)}</div>
+                                <div><strong>Fahrzeuge:</strong> ${r.vehicleNames || "keine"}</div>
+                                ${r.otherOrgs ? `<div><strong>Andere Organisationen:</strong> ${escapeHtml(r.otherOrgs)}</div>` : ""}
+                                ${r.groupLeader ? `<div><strong>Gruppenführer/Truppführer:</strong> ${escapeHtml(r.groupLeader)}</div>` : ""}
+                                ${r.incidentCommander ? `<div><strong>Einsatzleiter:</strong> ${escapeHtml(r.incidentCommander)}</div>` : ""}
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function renderPartners() {
+            return `
+                <h2>🤝 Unsere Partner</h2>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-img"><img src="https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg" alt="BEFT Modding"></div>
+                        <div class="card-content"><h3 class="card-title">BEFT Modding Team</h3><p>Design für Einsatzfahrzeuge & Fahrzeugbereitstellung</p></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-img"><img src="https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg" alt="Bergung Wolf"></div>
+                        <div class="card-content"><h3 class="card-title">Bergung Wolf</h3><p>Unterstützung auf dem Server Nürnberg RP</p></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadPage(page) {
+            currentPage = page;
+            let html = "";
+            if (page === "home") html = renderHome();
+            else if (page === "vehicles") html = renderVehicles();
+            else if (page === "history") html = renderHistory();
+            else if (page === "reports") html = renderReports();
+            else if (page === "partners") html = renderPartners();
+            document.getElementById("pageContent").innerHTML = html;
+
+            document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
+            document.querySelector(`.nav-link[data-page="${page}"]`).classList.add("active");
+
+            document.querySelectorAll(".detail-btn").forEach(btn => {
+                const id = parseInt(btn.dataset.id);
+                const vehicle = vehiclesActive.find(v => v.id === id);
+                if (vehicle) btn.onclick = () => showVehicleDetail(vehicle);
+            });
+            document.querySelectorAll(".detail-retired").forEach(btn => {
+                const id = parseInt(btn.dataset.id);
+                const vehicle = vehiclesRetired.find(v => v.id === id);
+                if (vehicle) btn.onclick = () => alert(`🚒 ${vehicle.name}\n\nBaujahr: ${vehicle.baujahr}\nIm Dienst: ${vehicle.serviceFrom} – ${vehicle.serviceUntil}\n\n${vehicle.details}`);
+            });
+            document.querySelectorAll(".nav-button").forEach(btn => {
+                btn.onclick = () => loadPage(btn.dataset.page);
+            });
+
+            const showBtn = document.getElementById("showReportFormBtn");
+            const formContainer = document.getElementById("reportFormContainer");
+            if (showBtn && formContainer) {
+                showBtn.onclick = () => {
+                    if (formContainer.style.display === "none") {
+                        formContainer.style.display = "block";
+                        showBtn.textContent = "✖️ Formular schließen";
+                    } else {
+                        formContainer.style.display = "none";
+                        showBtn.textContent = "+ Bericht einreichen";
+                    }
+                };
+                document.getElementById("submitReportBtn")?.addEventListener("click", () => {
+                    const author = document.getElementById("reportAuthor")?.value;
+                    const title = document.getElementById("reportTitle")?.value;
+                    const date = document.getElementById("reportDate")?.value;
+                    const location = document.getElementById("reportLocation")?.value;
+                    const otherOrgs = document.getElementById("otherOrgs")?.value;
+                    const groupLeader = document.getElementById("groupLeader")?.value;
+                    const incidentCommander = document.getElementById("incidentCommander")?.value;
+                    const text = document.getElementById("reportText")?.value;
+                    const selectedBoxes = document.querySelectorAll('#vehicleCheckboxes input:checked');
+                    const vehicleIds = Array.from(selectedBoxes).map(cb => parseInt(cb.value));
+                    const vehicleNames = Array.from(selectedBoxes).map(cb => cb.getAttribute("data-name")).join(", ");
+                    if (!author || !title || !date || !location || !text) {
+                        alert("Bitte alle Pflichtfelder ausfüllen.");
+                        return;
+                    }
+                    reports.push({ id: Date.now(), author, title, date, location, otherOrgs, groupLeader, incidentCommander, text, vehicleIds, vehicleNames, status: "pending" });
+                    saveData();
+                    alert("Bericht eingereicht! Er wird nach Prüfung freigeschaltet.");
+                    formContainer.style.display = "none";
+                    if (showBtn) showBtn.textContent = "+ Bericht einreichen";
+                    loadPage("reports");
+                });
+            }
+        }
+
+        function showAdminPanel() {
+            const pw = prompt("Admin-Passwort:");
+            if (pw !== "adminFF") { alert("Falsches Passwort!"); return; }
+            let msg = "Admin-Optionen:\n1. Einsatzberichte freischalten\n2. Ausgemusterte Fahrzeuge verwalten\n3. Zukunftsfahrzeuge sichtbar schalten\n0. Abbrechen";
+            const opt = prompt(msg);
+            if (opt === "1") {
+                const pending = reports.filter(r => r.status === "pending");
+                if (pending.length === 0) { alert("Keine wartenden Berichte."); return; }
+                let list = "Wartende Berichte:\n\n";
+                pending.forEach((r, idx) => { list += `${idx+1}. ${r.title} (${r.date}) von ${r.author}\n`; });
+                list += "\nNummer zum Freischalten:";
+                const num = parseInt(prompt(list));
+                if (num && num > 0 && num <= pending.length) {
+                    pending[num-1].status = "approved";
+                    saveData();
+                    alert("Bericht freigeschaltet!");
+                    if (currentPage === "reports") loadPage("reports");
+                }
+            } else if (opt === "2") {
+                let action = prompt("Ausgemusterte Fahrzeuge:\nNeu hinzufügen? (ja/nein)");
+                if (action === "ja") {
+                    let name = prompt("Fahrzeugname:");
+                    let baujahr = prompt("Baujahr:");
+                    let from = prompt("Dienst von (Jahr):");
+                    let until = prompt("Dienst bis (Jahr):");
+                    let details = prompt("Beschreibung:");
+                    let image = prompt("Bild-URL (optional):", "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg");
+                    if (name && baujahr && from && until) {
+                        let newId = Math.max(...vehiclesRetired.map(v => v.id), 0) + 1;
+                        vehiclesRetired.push({ id: newId, name, baujahr, image: image || "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details, serviceFrom: from, serviceUntil: until });
+                        saveData();
+                        alert("Fahrzeug hinzugefügt!");
+                        if (currentPage === "vehicles") loadPage("vehicles");
+                    }
+                }
+            } else if (opt === "3") {
+                let futureList = vehiclesFuture.map((v, i) => `${i+1}. ${v.name} (sichtbar: ${v.visible ? "ja" : "nein"})`).join("\n");
+                let num = parseInt(prompt(`Zukunftsfahrzeuge:\n${futureList}\n\nNummer zum Umschalten der Sichtbarkeit:`));
+                if (num && num > 0 && num <= vehiclesFuture.length) {
+                    vehiclesFuture[num-1].visible = !vehiclesFuture[num-1].visible;
+                    saveData();
+                    alert(`Sichtbarkeit für ${vehiclesFuture[num-1].name} auf ${vehiclesFuture[num-1].visible ? "sichtbar" : "unsichtbar"} gesetzt.`);
+                    if (currentPage === "vehicles") loadPage("vehicles");
+                }
+            }
+        }
+
+        document.getElementById("burgerBtn").onclick = () => {
+            document.getElementById("navLinks").classList.toggle("show");
+        };
+        document.querySelectorAll(".nav-link").forEach(link => {
+            link.onclick = () => {
+                loadPage(link.dataset.page);
+                document.getElementById("navLinks").classList.remove("show");
+            };
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.altKey && e.key === "a") {
+                e.preventDefault();
+                showAdminPanel();
+            }
+        });
+        document.getElementById("darkmodeToggle").onclick = () => {
+            document.body.classList.toggle("dark");
+        };
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.body.classList.add("dark");
+        }
+        loadPage("home");
+    </script>
+</body>
+</html>
+
+
+
