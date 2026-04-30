@@ -422,6 +422,24 @@
         .collapsible-content.show {
             display: block;
         }
+
+        .training-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .training-table th, .training-table td {
+            border: 1px solid var(--border);
+            padding: 0.6rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        .training-table th {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -441,7 +459,7 @@
                     <span class="nav-link" data-page="home">Start</span>
                     <span class="nav-link" data-page="vehicles">Fahrzeuge</span>
                     <span class="nav-link" data-page="specialgroups">Fachgruppen</span>
-                    <span class="nav-link" data-page="history">Geschichte</span>
+                    <span class="nav-link" data-page="training">Dienstplan</span>
                     <span class="nav-link" data-page="reports">Einsatzberichte</span>
                     <span class="nav-link" data-page="partners">Partner</span>
                 </div>
@@ -472,34 +490,34 @@
 
     <script>
         // --------------------------------------------------------------
-        // BILDPFADE (RELATIV ZUM IMAGES-ORDNER)
+        // BILDPFADE (Platzhalter – du kannst später eigene Bilder ersetzen)
         // --------------------------------------------------------------
-        const IMG_PATH = "images/";
-        const PLACEHOLDER = IMG_PATH + "platzhalter.png";
-        function getImageSrc(src) { return src ? IMG_PATH + src : PLACEHOLDER; }
+        function getImageSrc(name) {
+            return "https://via.placeholder.com/300x200?text=" + encodeURIComponent(name);
+        }
 
         // --------------------------------------------------------------
-        // FAHRZEUGDATEN
+        // FAHRZEUGDATEN (aktiv + ausgemustert)
         // --------------------------------------------------------------
         let vehiclesActive = [
-            { id: "a1", name: "KdoW", funk: "Florian Nürnberg 2/10-1", baujahr: "2026", besatzung: "1/4", text: "BF Caddy · Digitalfunk, Laptop, Lagekarte", image: "kdow.png", details: "Führungsfahrzeug für kleinere und mittlere Lagen. Ausgestattet mit Digitalfunk, Laptop mit Lagekarte und Einsatzführungssoftware." },
-            { id: "a2", name: "HLF 16/25 (alt)", funk: "Florian Nürnberg 2/40-1", baujahr: "2001", besatzung: "1/8", text: "Gebraucht von der BF · 1.600 l/min, 2.500 l Wasser", image: "hlf.png", details: "Motorprobleme, Ersatz geplant. TÜV läuft November 2026 aus. Keine TS an Bord. Zieht FwA-Umwelt, Gulasch, Boot, NEA. Ausstattung: Plasmabrenner, 6 kVA Stromerzeuger, 6 Atemschutzgeräte, 2x CSA 3, 4x CSA 1. LED-Heckwarnanlage mit vier Blitzern, Frontblitzer neben Kühlergrill.", defect: true },
-            { id: "a3", name: "GW-L1 (defekt)", funk: "Florian Nürnberg 2/55-1", baujahr: "2012", besatzung: "1/5", text: "Schnuckis Werkstatt · defekt (Dieselverbrauch)", image: "gwl1.png", details: "Notfall-Zugfahrzeug (nur City). Extrem hoher Dieselverbrauch. Wird 2026 ersetzt. Rollcontainer: RC Rettungsplattform, RC Verpflegung, RC Kühlschrank, RC Drohne, RC Heizung, RC Schnelleinsatzzelt. LED-Blaulichter, Heckwarnanlage mit runden Blitzern.", defect: true },
-            { id: "a4", name: "MTW (neu)", funk: "Florian Nürnberg 2/14-1", baujahr: "2026", besatzung: "1/7", text: "Eigenbau · 7 Sitze", image: "mtw.png", details: "Zieht Bootsanhänger. 7 Sitzplätze. Eigenausbau durch Feuerwehrkameraden." },
-            { id: "a5", name: "GW Drohne", funk: "Kater Nürnberg 0/59-1", baujahr: "2025", besatzung: "1/3", text: "Messfahrzeug, 4 PA in Euroboxen", image: "gw-drohne.png", details: "Messkomponente: 4‑Gas, Strahlenmesstechnik. 4 PA-Geräte in Euroboxen (keine festen Plätze)." },
-            { id: "a6", name: "LF 20 KatS", funk: "Florian Nürnberg 2/41-1", baujahr: "2026 (geplant)", besatzung: "1/8", text: "2.000 l Wasser, 120 l Schaum, 3.000 l/min Pumpe", image: "lf-kats.png", details: "Noch nicht im Dienst (Außendienst). Zusatz: Kombigerät Rettungssatz, 8 CSA 1, Filtergeräte.", notActive: true },
-            { id: "a7", name: "FwA-Umwelt", text: "TS 16/8 BMW-Boxer", image: "tsa.png", category: "trailer", details: "TS 16/8 mit BMW Boxermotor (35 kW / 46 PS), 1.600 l/min bei 8 bar. Ölsperren, Bindemittel, Tauchpumpen. Zugfahrzeug: HLF 16/25." },
-            { id: "a8", name: "FwA-Gulasch", text: "250 Portionen, Feuerbetrieb", image: "gulasch.png", category: "trailer", details: "Feuerbetrieb (Holz). 250 Portionen. Küchenwerkzeug, keine Tische/Stühle. Offroad mit GW-L1, sonst HLF 16/25." },
-            { id: "a9", name: "FwA-NEA 250", text: "250 kVA Notstrom", image: "nea.png", category: "trailer", details: "LED-Lichtmast, Scania-Motor. Nur HLF 16/25 als Zugfahrzeug." },
-            { id: "a10", name: "Bootsanhänger", text: "Bootsname Helmut, Funk 2/99-1", image: "boot.png", category: "trailer", details: "Schlauchboot mit 4 Plätzen. Funkrufname Boot: Florian Nürnberg 2/99-1. Zugfahrzeug: MTW, KdoW, GW-L1 (Notfall)." },
-            { id: "a11", name: "Melde-Motorrad", funk: "Florian Nürnberg 2/17-1", baujahr: "unbekannt", besatzung: "1/1", text: "Western Police Bike, Traditionsfahrzeug", image: "motorrad.png", details: "Amerikanisches Polizeimotorrad, traditionelles Blaulicht, reines Melde- und Erkundungsfahrzeug. Seltene Sonderfahrten." }
+            { id: "a1", name: "KdoW", funk: "Florian Nürnberg 2/10-1", baujahr: "2026", besatzung: "1/4", text: "BF Caddy · Digitalfunk, Laptop, Lagekarte", image: "KdoW", details: "Führungsfahrzeug für kleinere und mittlere Lagen. Ausgestattet mit Digitalfunk, Laptop mit Lagekarte und Einsatzführungssoftware." },
+            { id: "a2", name: "HLF 16/25 (alt)", funk: "Florian Nürnberg 2/40-1", baujahr: "2001", besatzung: "1/8", text: "Gebraucht von der BF · 1.600 l/min, 2.500 l Wasser", image: "HLF_16_25", details: "Motorprobleme, Ersatz geplant. TÜV läuft November 2026 aus. Keine TS an Bord. Zieht FwA-Umwelt, Gulasch, Boot, NEA. Ausstattung: Plasmabrenner, 6 kVA Stromerzeuger, 6 Atemschutzgeräte, 2x CSA 3, 4x CSA 1. LED-Heckwarnanlage mit vier Blitzern, Frontblitzer neben Kühlergrill.", defect: true },
+            { id: "a3", name: "GW-L1 (defekt)", funk: "Florian Nürnberg 2/55-1", baujahr: "2012", besatzung: "1/5", text: "Schnuckis Werkstatt · defekt (Dieselverbrauch)", image: "GW_L1", details: "Notfall-Zugfahrzeug (nur City). Extrem hoher Dieselverbrauch. Wird 2026 ersetzt. Rollcontainer: RC Rettungsplattform, RC Verpflegung, RC Kühlschrank, RC Drohne, RC Heizung, RC Schnelleinsatzzelt. LED-Blaulichter, Heckwarnanlage mit runden Blitzern.", defect: true },
+            { id: "a4", name: "MTW (neu)", funk: "Florian Nürnberg 2/14-1", baujahr: "2026", besatzung: "1/7", text: "Eigenbau · 7 Sitze", image: "MTW", details: "Zieht Bootsanhänger. 7 Sitzplätze. Eigenausbau durch Feuerwehrkameraden." },
+            { id: "a5", name: "GW Drohne", funk: "Kater Nürnberg 0/59-1", baujahr: "2025", besatzung: "1/3", text: "Messfahrzeug, 4 PA in Euroboxen", image: "GW_Drohne", details: "Messkomponente: 4‑Gas, Strahlenmesstechnik. 4 PA-Geräte in Euroboxen (keine festen Plätze)." },
+            { id: "a6", name: "LF 20 KatS", funk: "Florian Nürnberg 2/41-1", baujahr: "2026 (geplant)", besatzung: "1/8", text: "2.000 l Wasser, 120 l Schaum, 3.000 l/min Pumpe", image: "LF_20_KatS", details: "Noch nicht im Dienst (Außendienst). Zusatz: Kombigerät Rettungssatz, 8 CSA 1, Filtergeräte.", notActive: true },
+            { id: "a7", name: "FwA-Umwelt", text: "TS 16/8 BMW-Boxer", image: "FwA_Umwelt", category: "trailer", details: "TS 16/8 mit BMW Boxermotor (35 kW / 46 PS), 1.600 l/min bei 8 bar. Ölsperren, Bindemittel, Tauchpumpen. Zugfahrzeug: HLF 16/25." },
+            { id: "a8", name: "FwA-Gulasch", text: "250 Portionen, Feuerbetrieb", image: "FwA_Gulasch", category: "trailer", details: "Feuerbetrieb (Holz). 250 Portionen. Küchenwerkzeug, keine Tische/Stühle. Offroad mit GW-L1, sonst HLF 16/25." },
+            { id: "a9", name: "FwA-NEA 250", text: "250 kVA Notstrom", image: "FwA_NEA_250", category: "trailer", details: "LED-Lichtmast, Scania-Motor. Nur HLF 16/25 als Zugfahrzeug." },
+            { id: "a10", name: "Bootsanhänger", text: "Bootsname Helmut, Funk 2/99-1", image: "Bootsanhaenger", category: "trailer", details: "Schlauchboot mit 4 Plätzen. Funkrufname Boot: Florian Nürnberg 2/99-1. Zugfahrzeug: MTW, KdoW, GW-L1 (Notfall)." },
+            { id: "a11", name: "Melde-Motorrad", funk: "Florian Nürnberg 2/17-1", baujahr: "unbekannt", besatzung: "1/1", text: "Western Police Bike, Traditionsfahrzeug", image: "Melde_Motorrad", details: "Amerikanisches Polizeimotorrad, traditionelles Blaulicht, reines Melde- und Erkundungsfahrzeug. Seltene Sonderfahrten." }
         ];
 
         let vehiclesRetired = [
-            { id: "r1", name: "LF 16 TS (LSHD)", funk: "kein Funkrufname (historisch)", baujahr: "ca. 1965", image: "lf16ts.png", details: "Erstes eigenes Löschfahrzeug (vorher nur Reserveeinheit bei der BF).", serviceFrom: "ca. 1965", serviceUntil: "ca. 1970" },
-            { id: "r2", name: "LF 15 (Magirus-Deutz)", funk: "kein Funkrufname (historisch)", baujahr: "1950", image: "lf15.png", details: "Von einer befreundeten Ortswehr übernommen (Standort nicht mehr existent).", serviceFrom: "ca. 1970", serviceUntil: "1985" },
-            { id: "r3", name: "VW Golf", funk: "kein Funkrufname (Dienstfahrzeug)", baujahr: "1985", image: "vwgolf.png", details: "Dienstfahrzeug für Transport- und Führungsaufgaben.", serviceFrom: "1985", serviceUntil: "2000" },
-            { id: "r4", name: "VW T4 (altes MTW)", funk: "Florian Nürnberg 2/14-1 (früher)", baujahr: "2000", image: "vwt4.png", details: "Eigenausbau zum MTW. Nach Unfall 2017 außer Dienst.", serviceFrom: "2000", serviceUntil: "2017" }
+            { id: "r1", name: "LF 16 TS (LSHD)", funk: "kein Funkrufname (historisch)", baujahr: "ca. 1965", image: "LF_16_TS", details: "Erstes eigenes Löschfahrzeug (vorher nur Reserveeinheit bei der BF).", serviceFrom: "ca. 1965", serviceUntil: "ca. 1970" },
+            { id: "r2", name: "LF 15 (Magirus-Deutz)", funk: "kein Funkrufname (historisch)", baujahr: "1950", image: "LF_15", details: "Von einer befreundeten Ortswehr übernommen (Standort nicht mehr existent).", serviceFrom: "ca. 1970", serviceUntil: "1985" },
+            { id: "r3", name: "VW Golf", funk: "kein Funkrufname (Dienstfahrzeug)", baujahr: "1985", image: "VW_Golf", details: "Dienstfahrzeug für Transport- und Führungsaufgaben.", serviceFrom: "1985", serviceUntil: "2000" },
+            { id: "r4", name: "VW T4 (altes MTW)", funk: "Florian Nürnberg 2/14-1 (früher)", baujahr: "2000", image: "VW_T4", details: "Eigenausbau zum MTW. Nach Unfall 2017 außer Dienst.", serviceFrom: "2000", serviceUntil: "2017" }
         ];
 
         // Fachgruppen
@@ -511,10 +529,10 @@
             { name: "Katastrophenschutz", description: "Fahrzeuge für den Katastrophenschutz: GW Drohne, LF 20 KatS." }
         ];
 
-        // Partner (beliebig erweiterbar)
-        const partners = [
-            { name: "BEFT Modding Team", image: "beft.png", description: "Design für Einsatzfahrzeuge & Fahrzeugbereitstellung", link: "https://discord.gg/beft" },
-            { name: "Bergung Wolf", image: "bergung-wolf.png", description: "Unterstützung auf dem Server Nürnberg RP", link: "https://discord.gg/bergungwolf" }
+        // Partner
+        let partners = [
+            { name: "BEFT Modding Team", image: "BEFT", description: "Design für Einsatzfahrzeuge & Fahrzeugbereitstellung", link: "https://discord.gg/beft" },
+            { name: "Bergung Wolf", image: "Bergung_Wolf", description: "Unterstützung auf dem Server Nürnberg RP", link: "https://discord.gg/bergungwolf" }
         ];
 
         let reports = [];
@@ -524,16 +542,16 @@
         let isReading = false;
         let currentUtterance = null;
 
-        // --------------------------------------------------------------
-        // SPEICHER / LADEN
-        // --------------------------------------------------------------
         function saveData() {
             localStorage.setItem("ff_reports", JSON.stringify(reports));
+            localStorage.setItem("ff_partners", JSON.stringify(partners));
         }
         function loadData() {
             const r = localStorage.getItem("ff_reports");
             if (r) reports = JSON.parse(r);
             else reports = [];
+            const p = localStorage.getItem("ff_partners");
+            if (p) partners = JSON.parse(p);
         }
         loadData();
 
@@ -542,9 +560,6 @@
             return str.replace(/[&<>]/g, (m) => (m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;"));
         }
 
-        // --------------------------------------------------------------
-        // SEITEN PERSISTENZ
-        // --------------------------------------------------------------
         function saveCurrentState() {
             const state = { page: currentPage, detailId: currentDetailId, detailIsRetired: currentDetailIsRetired };
             localStorage.setItem("ff_state", JSON.stringify(state));
@@ -553,4 +568,400 @@
         function restoreState() {
             const state = localStorage.getItem("ff_state");
             if (state) {
-                try
+                try {
+                    const s = JSON.parse(state);
+                    currentPage = s.page || "home";
+                    currentDetailId = s.detailId || null;
+                    currentDetailIsRetired = s.detailIsRetired || false;
+                } catch(e) {}
+            }
+            if (currentDetailId) {
+                const vehicle = currentDetailIsRetired ? vehiclesRetired.find(v => v.id === currentDetailId) : vehiclesActive.find(v => v.id === currentDetailId);
+                if (vehicle) {
+                    renderDetailPage(vehicle, currentDetailIsRetired);
+                    return;
+                } else {
+                    currentDetailId = null;
+                    currentPage = "vehicles";
+                }
+            }
+            loadPage(currentPage);
+        }
+
+        function showVehicleDetail(vehicle, isRetired = false) {
+            currentDetailId = vehicle.id;
+            currentDetailIsRetired = isRetired;
+            currentPage = "detail";
+            saveCurrentState();
+            renderDetailPage(vehicle, isRetired);
+        }
+
+        function renderDetailPage(vehicle, isRetired) {
+            let html = `
+                <div class="detail-page">
+                    <button id="backToVehiclesBtn" class="back-btn">← Zurück zur Fahrzeugübersicht</button>
+                    <div class="detail-header">${escapeHtml(vehicle.name)}</div>
+                    ${vehicle.funk ? `<div class="funk-badge">📻 ${escapeHtml(vehicle.funk)}</div>` : ""}
+                    <div class="meta-row">
+                        ${vehicle.baujahr ? `<div><strong>📅 Baujahr:</strong> ${escapeHtml(vehicle.baujahr)}</div>` : ""}
+                        ${vehicle.besatzung ? `<div><strong>👥 Besatzung:</strong> ${escapeHtml(vehicle.besatzung)}</div>` : ""}
+                        ${vehicle.serviceFrom ? `<div><strong>📅 Im Dienst:</strong> ${escapeHtml(vehicle.serviceFrom)} – ${escapeHtml(vehicle.serviceUntil)}</div>` : ""}
+                    </div>
+                    <div class="detail-img">
+                        <img src="${getImageSrc(vehicle.image)}" alt="${escapeHtml(vehicle.name)}" loading="lazy">
+                    </div>
+                    <div class="detail-description">
+                        <strong>Beschreibung / Technik:</strong>
+                        <p>${escapeHtml(vehicle.details || vehicle.text)}</p>
+                    </div>
+                    ${!isRetired && vehicle.defect ? `<div class="defect-badge inline-badge">⚠️ techn. Problem / Defekt</div>` : ""}
+                    ${!isRetired && vehicle.notActive ? `<div class="defect-badge inline-badge">⏳ noch nicht im Dienst (Außendienst)</div>` : ""}
+                </div>
+            `;
+            document.getElementById("pageContent").innerHTML = html;
+            document.getElementById("backToVehiclesBtn").onclick = () => {
+                currentDetailId = null;
+                loadPage("vehicles");
+            };
+        }
+
+        function renderHome() {
+            return `
+                <div class="hero" style="background-image: url('${getImageSrc("hero")}');">
+                    <h2>Willkommen bei der Freiwilligen Feuerwehr Nürnberg Stadt</h2>
+                    <p>Wir schützen Nürnberg – ehrenamtlich, modern, einsatzbereit.</p>
+                </div>
+                <div class="grid">
+                    <div class="card" data-page="vehicles">
+                        <div class="card-content"><h3 class="card-title">🚒 Fahrzeuge</h3><p>Unsere aktuelle Flotte und ausgemusterte Fahrzeuge</p><button class="nav-button">Zur Fahrzeugübersicht →</button></div>
+                    </div>
+                    <div class="card" data-page="specialgroups">
+                        <div class="card-content"><h3 class="card-title">🛠️ Fachgruppen</h3><p>Luftunterstützung, Umwelt, Verpflegung, Wasserrettung, KatS</p><button class="nav-button">Zu den Fachgruppen →</button></div>
+                    </div>
+                    <div class="card" data-page="training">
+                        <div class="card-content"><h3 class="card-title">📅 Dienstplan</h3><p>Ausbildungs- und Dienstplan 2026</p><button class="nav-button">Zum Dienstplan →</button></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVehicles() {
+            const activeList = vehiclesActive.map(v => `
+                <div class="card" data-id="${v.id}" data-type="active">
+                    <div class="card-img"><img src="${getImageSrc(v.image)}" alt="${escapeHtml(v.name)}" loading="lazy"></div>
+                    <div class="card-content">
+                        <div class="card-title">${escapeHtml(v.name)} ${v.defect ? '<span class="defect-badge">⚠️ defekt</span>' : v.notActive ? '<span class="defect-badge">⏳ Außendienst</span>' : ''}</div>
+                        ${v.funk ? `<div class="funk-badge">📻 ${escapeHtml(v.funk)}</div>` : ""}
+                        <p>${escapeHtml(v.text)}</p>
+                    </div>
+                </div>
+            `).join("");
+
+            const retiredList = vehiclesRetired.map(v => `
+                <div class="card" data-id="${v.id}" data-type="retired">
+                    <div class="card-img"><img src="${getImageSrc(v.image)}" alt="${escapeHtml(v.name)}" loading="lazy"></div>
+                    <div class="card-content">
+                        <div class="card-title">${escapeHtml(v.name)} <span class="retired-badge">📅 ausgemustert</span></div>
+                        ${v.funk ? `<div class="funk-badge">📻 ${escapeHtml(v.funk)}</div>` : ""}
+                        <div class="service-period">Im Dienst: ${v.serviceFrom} – ${v.serviceUntil}</div>
+                        <p>${escapeHtml(v.details)}</p>
+                    </div>
+                </div>
+            `).join("");
+
+            return `
+                <h2 class="section-header">🚒 Aktive Flotte (im Dienst)</h2>
+                <div class="grid active-grid">${activeList}</div>
+                <button class="collapsible" id="retiredCollapseBtn">📜 Ausgemusterte Fahrzeuge anzeigen ▼</button>
+                <div id="retiredCollapse" class="collapsible-content">
+                    <div class="grid retired-grid">${retiredList}</div>
+                </div>
+            `;
+        }
+
+        function renderSpecialGroups() {
+            const groupsList = specialGroups.map(g => `
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title">🛠️ ${escapeHtml(g.name)}</div>
+                        <p>${escapeHtml(g.description)}</p>
+                    </div>
+                </div>
+            `).join("");
+            return `<h2 class="section-header">🛠️ Fachgruppen der FF Nürnberg Stadt</h2><div class="grid">${groupsList}</div>`;
+        }
+
+        function renderTraining() {
+            return `
+                <h2 class="section-header">📅 Ausbildungs- und Dienstplan 2026</h2>
+                <div class="detail-page">
+                    <table class="training-table">
+                        <thead><tr><th>Datum</th><th>Uhrzeit</th><th>Thema</th><th>Besonderheit</th></tr></thead>
+                        <tbody>
+                            <tr><td>09.05.2026 (Sa)</td><td>18:30–20:00</td><td>Fahrzeug- und Gerätekunde I</td><td>Kompletter Fuhrpark, Funkrufnamen, Grundstruktur Wache</td></tr>
+                            <tr><td>10.05.2026 (So)</td><td>16:00–18:00</td><td>Neue Fahrzeuge / neue Einsatzmittel</td><td>Einweisung, Besonderheiten Anhänger / Sondergeräte</td></tr>
+                            <tr><td>30.05.2026 (Sa)</td><td>18:30–20:00</td><td>Fahrzeug- und Gerätekunde II</td><td>Vertiefung, praktische Einweisung, Übergangsfahrzeuge</td></tr>
+                            <tr><td>14.06.2026 (So)</td><td>16:00–18:00</td><td>Wachbesichtigung / Austausch FF</td><td>Kooperation, gemeinsame Ausbildungsperspektive</td></tr>
+                            <tr><td>20.06.2026 (Sa)</td><td>18:30–20:00</td><td>Personen in Ausnahmesituationen</td><td>Verhalten, taktische Grundlagen</td></tr>
+                            <tr><td>21.06.2026 (So)</td><td>16:00–18:00</td><td>Gefahrstoff Kleinlagen</td><td>Erste Maßnahmen, einfache Szenarien</td></tr>
+                            <tr><td>05.07.2026 (Sa)</td><td>18:30–20:00</td><td>TH Grundlagen</td><td></td></tr>
+                            <tr><td>12.07.2026 (Sa)</td><td>18:30–20:00</td><td>Branddienst Grundlagen</td><td></td></tr>
+                            <tr><td>19.07.2026 (Sa)</td><td>18:30–20:00</td><td>Einsatzwiederholung / Praxis</td><td></td></tr>
+                            <tr><td>26.07.2026 (Sa)</td><td>18:30–20:00</td><td>Allgemeiner Dienst</td><td></td></tr>
+                            <tr><td>01.08.2026 (Sa)</td><td>18:30–20:00</td><td>Öffentlichkeitsarbeit</td><td></td></tr>
+                            <tr><td>08.08.2026 (Sa)</td><td>18:30–20:00</td><td>AGT / Atemschutz</td><td></td></tr>
+                            <tr><td>15.08.2026 (Sa)</td><td>18:30–20:00</td><td>Gerätekunde Spezial (Pumpen / Aggregate / Drohne)</td><td></td></tr>
+                            <tr><td>22.08.2026 (Sa)</td><td>18:30–20:00</td><td>Wasserrettung / Boot (Einführung)</td><td></td></tr>
+                            <tr><td>05.09.2026 (Sa)</td><td>18:30–20:00</td><td>Waldbrand</td><td></td></tr>
+                            <tr><td>12.09.2026 (Sa)</td><td>18:30–20:00</td><td>Autobahndienst</td><td></td></tr>
+                            <tr><td>19.09.2026 (Sa)</td><td>18:30–20:00</td><td>Psychologie Modul 1</td><td></td></tr>
+                            <tr><td>26.09.2026 (Sa)</td><td>18:30–20:00</td><td>Einsatzpraxis</td><td></td></tr>
+                            <tr><td>03.10.2026 (Sa)</td><td>18:30–20:00</td><td>ABC Grundlagen</td><td></td></tr>
+                            <tr><td>10.10.2026 (Sa)</td><td>18:30–20:00</td><td>Geräte / Einsatztechnik</td><td></td></tr>
+                            <tr><td>17.10.2026 (Sa)</td><td>18:30–20:00</td><td>Sonderlagen / Personenrettung</td><td></td></tr>
+                            <tr><td>24.10.2026 (Sa)</td><td>18:30–20:00</td><td>Funkübung</td><td></td></tr>
+                            <tr><td>07.11.2026 (Sa)</td><td>18:30–20:00</td><td>Verbandfahrt / Fahrtraining</td><td></td></tr>
+                            <tr><td>15.11.2026 (So)</td><td>16:00–18:00</td><td>Erste Hilfe / Online + Praxis</td><td>Sonderdienst</td></tr>
+                            <tr><td>21.11.2026 (Sa)</td><td>18:30–20:00</td><td>Psychologie Modul 2</td><td></td></tr>
+                            <tr><td>28.11.2026 (Sa)</td><td>18:30–20:00</td><td>Großschadenslagen</td><td></td></tr>
+                            <tr><td>05.12.2026 (Sa)</td><td>18:30–20:00</td><td>Winterlagen / Verkehr</td><td></td></tr>
+                            <tr><td>12.12.2026 (Sa)</td><td>18:30–20:00</td><td>Einsatznachbereitung</td><td></td></tr>
+                            <tr><td>19.12.2026 (Sa)</td><td>18:30–20:00</td><td>Jahresabschlussdienst</td><td></td></tr>
+                            <tr><td>27.12.2026 (So)</td><td>optional</td><td>Kameradschaft / lockere Nachbereitung</td><td></td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:1rem;"><strong>Hinweis:</strong> Samstage sind Hauptdiensttage, Sonntage nur ergänzend. Sonderdienste (Wasserrettung, FwA-NEA 250) werden flexibel geplant.</p>
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            const approved = reports.filter(r => r.status === "approved").reverse();
+            return `
+                <h2>📋 Einsatzberichte</h2>
+                <button id="showReportFormBtn" class="report-btn">+ Bericht einreichen</button>
+                <div id="reportFormContainer" style="display:none; margin-bottom:2rem;">
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>Neuen Einsatzbericht einreichen</h3>
+                            <div class="form-group"><label>Einsatznummer (frei wählbar):</label><input type="text" id="reportNumber" placeholder="z. B. 2026-001"></div>
+                            <div class="form-group"><label>Dein Name (Autor):</label><input type="text" id="reportAuthor" placeholder="Max Mustermann"></div>
+                            <div class="form-group"><label>Titel:</label><input type="text" id="reportTitle"></div>
+                            <div class="form-group"><label>Datum:</label><input type="date" id="reportDate"></div>
+                            <div class="form-group"><label>Einsatzort:</label><input type="text" id="reportLocation"></div>
+                            <div class="form-group"><label>Beteiligte Fahrzeuge:</label>
+                                <div class="checkbox-group" id="vehicleCheckboxes">
+                                    ${vehiclesActive.filter(v => !v.category).map(v => `<label><input type="checkbox" value="${v.id}" data-name="${escapeHtml(v.name)}"> ${escapeHtml(v.name)}</label>`).join("")}
+                                </div>
+                            </div>
+                            <div class="form-group"><label>Andere Organisationen (Polizei, THW, etc.):</label><input type="text" id="otherOrgs"></div>
+                            <div class="form-group"><label>Einsatzleiter (optional):</label><input type="text" id="incidentCommander"></div>
+                            <div class="form-group"><label>Gruppenführer / Truppführer (optional):</label><input type="text" id="groupLeader"></div>
+                            <div class="form-group"><label>Einsatzbericht (Text):</label><textarea id="reportText" rows="6"></textarea></div>
+                            <button id="submitReportBtn">Einreichen</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid reports-grid">
+                    ${approved.map(r => `
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="card-title">${escapeHtml(r.title)}</div>
+                                <div>📅 ${r.date} | 📍 ${r.location}</div>
+                                <div><strong>Einsatznummer:</strong> ${escapeHtml(r.reportNumber)}</div>
+                                <div><strong>Autor:</strong> ${escapeHtml(r.author)}</div>
+                                <p>${escapeHtml(r.text)}</p>
+                                <div><strong>Fahrzeuge:</strong> ${r.vehicleNames || "keine"}</div>
+                                ${r.otherOrgs ? `<div><strong>Andere Organisationen:</strong> ${escapeHtml(r.otherOrgs)}</div>` : ""}
+                                ${r.incidentCommander ? `<div><strong>Einsatzleiter:</strong> ${escapeHtml(r.incidentCommander)}</div>` : ""}
+                                ${r.groupLeader ? `<div><strong>Gruppenführer:</strong> ${escapeHtml(r.groupLeader)}</div>` : ""}
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function renderPartners() {
+            const partnerCards = partners.map(p => `
+                <div class="card">
+                    <div class="card-img"><img src="${getImageSrc(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy"></div>
+                    <div class="card-content">
+                        <h3 class="card-title">${escapeHtml(p.name)}</h3>
+                        <p>${escapeHtml(p.description)}</p>
+                        <a href="${p.link}" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top:0.5rem;">➡️ Besuchen</a>
+                    </div>
+                </div>
+            `).join("");
+            return `<h2 class="section-header">🤝 Unsere Partner</h2><div class="grid">${partnerCards}</div>`;
+        }
+
+        function loadPage(page) {
+            currentPage = page;
+            currentDetailId = null;
+            saveCurrentState();
+            let html = "";
+            if (page === "home") html = renderHome();
+            else if (page === "vehicles") html = renderVehicles();
+            else if (page === "specialgroups") html = renderSpecialGroups();
+            else if (page === "training") html = renderTraining();
+            else if (page === "reports") html = renderReports();
+            else if (page === "partners") html = renderPartners();
+            document.getElementById("pageContent").innerHTML = html;
+
+            document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
+            document.querySelector(`.nav-link[data-page="${page}"]`).classList.add("active");
+
+            document.querySelectorAll(".card[data-id]").forEach(card => {
+                const id = card.dataset.id;
+                const type = card.dataset.type;
+                if (type === "active") {
+                    const vehicle = vehiclesActive.find(v => v.id === id);
+                    if (vehicle) card.onclick = () => showVehicleDetail(vehicle, false);
+                } else if (type === "retired") {
+                    const vehicle = vehiclesRetired.find(v => v.id === id);
+                    if (vehicle) card.onclick = () => showVehicleDetail(vehicle, true);
+                }
+            });
+            document.querySelectorAll(".card[data-page]").forEach(card => {
+                const p = card.dataset.page;
+                card.onclick = () => loadPage(p);
+            });
+            const collBtn = document.getElementById("retiredCollapseBtn");
+            const collDiv = document.getElementById("retiredCollapse");
+            if (collBtn && collDiv) {
+                collBtn.onclick = () => {
+                    collDiv.classList.toggle("show");
+                    collBtn.textContent = collDiv.classList.contains("show") ? "📜 Ausgemusterte Fahrzeuge ausblenden ▲" : "📜 Ausgemusterte Fahrzeuge anzeigen ▼";
+                };
+            }
+
+            if (page === "reports") {
+                const showBtn = document.getElementById("showReportFormBtn");
+                const formContainer = document.getElementById("reportFormContainer");
+                if (showBtn && formContainer) {
+                    showBtn.onclick = () => {
+                        if (formContainer.style.display === "none") {
+                            formContainer.style.display = "block";
+                            showBtn.textContent = "✖️ Formular schließen";
+                        } else {
+                            formContainer.style.display = "none";
+                            showBtn.textContent = "+ Bericht einreichen";
+                        }
+                    };
+                    document.getElementById("submitReportBtn")?.addEventListener("click", () => {
+                        const reportNumber = document.getElementById("reportNumber")?.value;
+                        const author = document.getElementById("reportAuthor")?.value;
+                        const title = document.getElementById("reportTitle")?.value;
+                        const date = document.getElementById("reportDate")?.value;
+                        const location = document.getElementById("reportLocation")?.value;
+                        const otherOrgs = document.getElementById("otherOrgs")?.value;
+                        const incidentCommander = document.getElementById("incidentCommander")?.value;
+                        const groupLeader = document.getElementById("groupLeader")?.value;
+                        const text = document.getElementById("reportText")?.value;
+                        const selectedBoxes = document.querySelectorAll('#vehicleCheckboxes input:checked');
+                        const vehicleNames = Array.from(selectedBoxes).map(cb => cb.getAttribute("data-name")).join(", ");
+                        if (!reportNumber || !author || !title || !date || !location || !text) {
+                            alert("Bitte alle Pflichtfelder (Einsatznummer, Autor, Titel, Datum, Ort, Bericht) ausfüllen.");
+                            return;
+                        }
+                        reports.push({
+                            id: Date.now(),
+                            reportNumber, author, title, date, location, otherOrgs, incidentCommander, groupLeader, text,
+                            vehicleNames, status: "pending"
+                        });
+                        saveData();
+                        alert("Bericht eingereicht! Er wird nach Prüfung freigeschaltet.");
+                        formContainer.style.display = "none";
+                        if (showBtn) showBtn.textContent = "+ Bericht einreichen";
+                        loadPage("reports");
+                    });
+                }
+            }
+        }
+
+        function toggleReading() {
+            if (isReading && currentUtterance) {
+                speechSynthesis.cancel();
+                isReading = false;
+                currentUtterance = null;
+                document.getElementById("readBtn").textContent = "🔊 Vorlesen";
+            } else {
+                const content = document.getElementById("pageContent").innerText;
+                if (!content) return;
+                const utterance = new SpeechSynthesisUtterance(content.substring(0, 3000));
+                utterance.lang = "de-DE";
+                utterance.onend = () => {
+                    isReading = false;
+                    currentUtterance = null;
+                    document.getElementById("readBtn").textContent = "🔊 Vorlesen";
+                };
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+                currentUtterance = utterance;
+                isReading = true;
+                document.getElementById("readBtn").textContent = "⏹️ Stopp";
+            }
+        }
+
+        function showAdminPanel() {
+            const pw = prompt("Admin-Passwort:");
+            if (pw !== "adminFF") { alert("Falsches Passwort!"); return; }
+            const pending = reports.filter(r => r.status === "pending");
+            if (pending.length === 0) { alert("Keine wartenden Berichte."); return; }
+            let msg = "Wartende Berichte:\n\n";
+            pending.forEach((r, idx) => { msg += `${idx+1}. ${r.title} (${r.date}) von ${r.author}\n`; });
+            msg += "\nNummer zum Freischalten:";
+            const num = parseInt(prompt(msg));
+            if (num && num > 0 && num <= pending.length) {
+                pending[num-1].status = "approved";
+                saveData();
+                alert("Bericht freigeschaltet!");
+                if (currentPage === "reports") loadPage("reports");
+            }
+        }
+
+        function showImpressum() {
+            document.getElementById("modalTitle").innerText = "Impressum";
+            document.getElementById("modalBody").innerHTML = `
+                <strong>Projekt:</strong> Nürnberg RP – Freiwillige Feuerwehr Nürnberg (Rollenspiel)<br>
+                <strong>Vertreten durch:</strong> FireBenni<br>
+                <strong>Kontakt:</strong> <a href="https://discord.gg/bQqCNfnZ4W" target="_blank">Discord-Server</a><br>
+                <strong>Hinweis:</strong> Diese Webseite dient ausschließlich dem Rollenspiel im Rahmen von FiveM / GTA-RP.
+            `;
+            document.getElementById("modal").style.display = "flex";
+        }
+        function showDatenschutz() {
+            document.getElementById("modalTitle").innerText = "Datenschutzerklärung";
+            document.getElementById("modalBody").innerHTML = `
+                Diese Webseite speichert keine personenbezogenen Daten. Keine Cookies. Lokale Speicherung (LocalStorage) für Einstellungen und Berichte.<br>
+                Verantwortlich: FireBenni · Stand April 2026.
+            `;
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        document.getElementById("burgerBtn").onclick = () => document.getElementById("navLinks").classList.toggle("show");
+        document.querySelectorAll(".nav-link").forEach(link => {
+            link.onclick = () => {
+                loadPage(link.dataset.page);
+                document.getElementById("navLinks").classList.remove("show");
+            };
+        });
+        document.getElementById("darkmodeToggle").onclick = () => document.body.classList.toggle("dark");
+        document.getElementById("readBtn").onclick = toggleReading;
+        document.getElementById("cityLink").href = "https://dein-rp-server.de"; // HIER DEINE RP-STARTSEITE EINTRAGEN
+        document.getElementById("impressumLink").onclick = showImpressum;
+        document.getElementById("datenschutzLink").onclick = showDatenschutz;
+        document.getElementById("closeModal").onclick = () => document.getElementById("modal").style.display = "none";
+        document.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.altKey && e.key === "a") {
+                e.preventDefault();
+                showAdminPanel();
+            }
+        });
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) document.body.classList.add("dark");
+
+        restoreState();
+    </script>
+</body>
+</html>
