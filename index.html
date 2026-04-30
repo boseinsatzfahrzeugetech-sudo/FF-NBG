@@ -401,10 +401,11 @@
                 </div>
                 <div class="toolbar">
                     <button class="tool-btn" id="darkmodeToggle">🌙 Dunkel</button>
+                    <button class="tool-btn" id="readBtn">🔊 Vorlesen</button>
                 </div>
                 <button class="burger" id="burgerBtn">☰ Menü</button>
                 <div class="nav-links" id="navLinks">
-                    <span class="nav-link active" data-page="home">Start</span>
+                    <span class="nav-link" data-page="home">Start</span>
                     <span class="nav-link" data-page="vehicles">Fahrzeuge</span>
                     <span class="nav-link" data-page="specialgroups">Fachgruppen</span>
                     <span class="nav-link" data-page="history">Geschichte</span>
@@ -422,7 +423,9 @@
     <div class="footer">
         <div class="container">
             <span>© Freiwillige Feuerwehr Nürnberg Stadt – Webseite für ein Rollenspiel (RP) auf FiveM / GTA-RP</span><br>
-            <a id="impressumLink">Impressum</a> | <a id="datenschutzLink">Datenschutz</a>
+            <a id="cityLink" href="#" target="_blank">← Zurück zur Stadtseite</a> |
+            <a id="impressumLink">Impressum</a> |
+            <a id="datenschutzLink">Datenschutz</a>
         </div>
     </div>
 
@@ -440,48 +443,45 @@
         // --------------------------------------------------------------
         const IMG_PATH = "images/";
         const PLACEHOLDER = IMG_PATH + "platzhalter.png";
-
-        function getImage(src) {
-            return src ? IMG_PATH + src : PLACEHOLDER;
-        }
+        function getImageSrc(src) { return src ? IMG_PATH + src : PLACEHOLDER; }
 
         // --------------------------------------------------------------
-        // DATEN AKTIVE FLOTTE (inkl. defekter Fahrzeuge)
+        // FAHRZEUGDATEN (aktiv / ausgemustert)
         // --------------------------------------------------------------
         let vehiclesActive = [
-            { id: 1, name: "KdoW", funk: "Florian Nürnberg 2/10-1", baujahr: "2026", besatzung: "1/4", text: "BF Caddy · Digitalfunk, Laptop, Lagekarte", image: "kdow.png", details: "Führungsfahrzeug für kleinere und mittlere Lagen. Ausgestattet mit Digitalfunk, Laptop mit Lagekarte und Einsatzführungssoftware." },
-            { id: 2, name: "HLF 16/25 (alt, defekt)", funk: "Florian Nürnberg 2/40-1", baujahr: "2001", besatzung: "1/8", text: "Gebraucht von der BF · 1.600 l/min, 2.500 l Wasser", image: "hlf.png", details: "Motorprobleme, Ersatz geplant. Keine TS an Bord. Zieht den FwA-Umwelt.", defect: true },
-            { id: 3, name: "GW-L1 (defekt)", funk: "Florian Nürnberg 2/55-1", baujahr: "2012", besatzung: "1/5", text: "Schnuckis Werkstatt · defekt (Dieselverbrauch)", image: "gwl1.png", details: "Notfall-Zugfahrzeug (nur City). Extrem hoher Dieselverbrauch. Wird 2026 ersetzt.", defect: true },
-            { id: 4, name: "MTW (neu)", funk: "Florian Nürnberg 2/14-1", baujahr: "2026", besatzung: "1/7", text: "Eigenbau · 7 Sitze", image: "mtw.png", details: "Zieht Bootsanhänger. 7 Sitzplätze. Eigenausbau durch Feuerwehrkameraden." },
-            { id: 5, name: "GW Drohne", funk: "Kater Nürnberg 0/59-1", baujahr: "2025", besatzung: "1/3", text: "Messfahrzeug, 4 PA in Euroboxen", image: "gw-drohne.png", details: "4‑Gas, Strahlenmesstechnik. 4 PA-Geräte in Euroboxen (keine festen Plätze)." },
-            { id: 6, name: "LF 20 KatS", funk: "Florian Nürnberg 2/41-1", baujahr: "2026", besatzung: "1/8", text: "2.000 l Wasser, 120 l Schaum, 3.000 l/min Pumpe", image: "lf-kats.png", details: "Noch nicht im Dienst (Außendienst / wartet auf Indienststellung). Zusatz: Kombigerät Rettungssatz, 8 CSA 1, Filtergeräte.", notActive: true },
-            { id: 7, name: "FwA-Umwelt", baujahr: "1984", text: "TS 16/8 BMW-Boxer", image: "tsa.png", category: "trailer", details: "TS 16/8 mit BMW Boxermotor. Ölsperren, Bindemittel. Zugfahrzeug: HLF 16/25." },
-            { id: 8, name: "FwA-Gulasch", baujahr: "1986", text: "250 Portionen, Feuerbetrieb", image: "gulasch.png", category: "trailer", details: "Feuerbetrieb (Holz). 250 Portionen. Küchenwerkzeug, keine Tische/Stühle." },
-            { id: 9, name: "FwA-NEA 250", baujahr: "2026", text: "250 kVA Notstrom", image: "nea.png", category: "trailer", details: "LED-Lichtmast, Scania-Motor. Nur HLF 16/25 als Zugfahrzeug." },
-            { id: 10, name: "Bootsanhänger", baujahr: "2016/2010", text: "Bootsname Helmut, Funk 2/99-1", image: "boot.png", category: "trailer", details: "Schlauchboot mit 4 Plätzen. Funk: 2/99-1 offiziell, Bootsname 'Helmut'." }
+            { id: "a1", name: "KdoW", funk: "Florian Nürnberg 2/10-1", baujahr: "2026", besatzung: "1/4", text: "BF Caddy · Digitalfunk, Laptop, Lagekarte", image: "kdow.png", details: "Führungsfahrzeug für kleinere und mittlere Lagen. Ausgestattet mit Digitalfunk, Laptop mit Lagekarte und Einsatzführungssoftware." },
+            { id: "a2", name: "HLF 16/25 (alt)", funk: "Florian Nürnberg 2/40-1", baujahr: "2001", besatzung: "1/8", text: "Gebraucht von der BF · 1.600 l/min, 2.500 l Wasser", image: "hlf.png", details: "Motorprobleme, Ersatz geplant. TÜV läuft November 2026 aus. Keine TS an Bord. Zieht FwA-Umwelt, Gulasch, Boot, NEA. Ausstattung: Plasmabrenner, 6 kVA Stromerzeuger, 6 Atemschutzgeräte, 2x CSA 3, 4x CSA 1. LED-Heckwarnanlage mit vier Blitzern, Frontblitzer neben Kühlergrill.", defect: true },
+            { id: "a3", name: "GW-L1 (defekt)", funk: "Florian Nürnberg 2/55-1", baujahr: "2012", besatzung: "1/5", text: "Schnuckis Werkstatt · defekt (Dieselverbrauch)", image: "gwl1.png", details: "Notfall-Zugfahrzeug (nur City). Extrem hoher Dieselverbrauch. Wird 2026 ersetzt. Rollcontainer: RC Rettungsplattform, RC Verpflegung, RC Kühlschrank, RC Drohne, RC Heizung, RC Schnelleinsatzzelt. LED-Blaulichter, Heckwarnanlage mit runden Blitzern.", defect: true },
+            { id: "a4", name: "MTW (neu)", funk: "Florian Nürnberg 2/14-1", baujahr: "2026", besatzung: "1/7", text: "Eigenbau · 7 Sitze", image: "mtw.png", details: "Zieht Bootsanhänger. 7 Sitzplätze. Eigenausbau durch Feuerwehrkameraden." },
+            { id: "a5", name: "GW Drohne", funk: "Kater Nürnberg 0/59-1", baujahr: "2025", besatzung: "1/3", text: "Messfahrzeug, 4 PA in Euroboxen", image: "gw-drohne.png", details: "Messkomponente: 4‑Gas, Strahlenmesstechnik. 4 PA-Geräte in Euroboxen (keine festen Plätze)." },
+            { id: "a6", name: "LF 20 KatS", funk: "Florian Nürnberg 2/41-1", baujahr: "2026 (geplant)", besatzung: "1/8", text: "2.000 l Wasser, 120 l Schaum, 3.000 l/min Pumpe", image: "lf-kats.png", details: "Noch nicht im Dienst (Außendienst). Zusatz: Kombigerät Rettungssatz, 8 CSA 1, Filtergeräte.", notActive: true },
+            { id: "a7", name: "FwA-Umwelt", text: "TS 16/8 BMW-Boxer", image: "tsa.png", category: "trailer", details: "TS 16/8 mit BMW Boxermotor (35 kW / 46 PS), 1.600 l/min bei 8 bar. Ölsperren, Bindemittel, Tauchpumpen. Zugfahrzeug: HLF 16/25." },
+            { id: "a8", name: "FwA-Gulasch", text: "250 Portionen, Feuerbetrieb", image: "gulasch.png", category: "trailer", details: "Feuerbetrieb (Holz). 250 Portionen. Küchenwerkzeug, keine Tische/Stühle. Offroad mit GW-L1, sonst HLF 16/25." },
+            { id: "a9", name: "FwA-NEA 250", text: "250 kVA Notstrom", image: "nea.png", category: "trailer", details: "LED-Lichtmast, Scania-Motor. Nur HLF 16/25 als Zugfahrzeug." },
+            { id: "a10", name: "Bootsanhänger", text: "Bootsname Helmut, Funk 2/99-1", image: "boot.png", category: "trailer", details: "Schlauchboot mit 4 Plätzen. Funkrufname Boot: Florian Nürnberg 2/99-1. Zugfahrzeug: MTW, KdoW, GW-L1 (Notfall)." },
+            { id: "a11", name: "Melde-Motorrad", funk: "Florian Nürnberg 2/17-1", baujahr: "unbekannt", besatzung: "1/1", text: "Western Police Bike, Traditionsfahrzeug", image: "motorrad.png", details: "Amerikanisches Polizeimotorrad, traditionelles Blaulicht, reines Melde- und Erkundungsfahrzeug. Seltene Sonderfahrten." }
         ];
 
-        // --------------------------------------------------------------
-        // AUSGEMUSTERTE FAHRZEUGE (HISTORIE)
-        // --------------------------------------------------------------
         let vehiclesRetired = [
-            { id: 101, name: "LF 16 TS (LSHD)", funk: "kein Funkrufname (historisch)", baujahr: "ca. 1965", image: "lf16ts.png", details: "Erstes eigenes Löschfahrzeug (vorher nur Reserveeinheit bei der BF).", serviceFrom: "ca. 1965", serviceUntil: "ca. 1970" },
-            { id: 102, name: "LF 15 (Magirus-Deutz)", funk: "kein Funkrufname (historisch)", baujahr: "1950", image: "lf15.png", details: "Von einer befreundeten Ortswehr übernommen (Standort nicht mehr existent).", serviceFrom: "ca. 1970", serviceUntil: "1985" },
-            { id: 103, name: "VW Golf", funk: "kein Funkrufname (Dienstfahrzeug)", baujahr: "1985", image: "vwgolf.png", details: "Dienstfahrzeug für Transport- und Führungsaufgaben.", serviceFrom: "1985", serviceUntil: "2000" },
-            { id: 104, name: "VW T4 (altes MTW)", funk: "Florian Nürnberg 2/14-1 (früher)", baujahr: "2000", image: "vwt4.png", details: "Eigenausbau zum MTW. Nach Unfall 2017 außer Dienst.", serviceFrom: "2000", serviceUntil: "2017" }
+            { id: "r1", name: "LF 16 TS (LSHD)", funk: "kein Funkrufname (historisch)", baujahr: "ca. 1965", image: "lf16ts.png", details: "Erstes eigenes Löschfahrzeug (vorher nur Reserveeinheit bei der BF).", serviceFrom: "ca. 1965", serviceUntil: "ca. 1970" },
+            { id: "r2", name: "LF 15 (Magirus-Deutz)", funk: "kein Funkrufname (historisch)", baujahr: "1950", image: "lf15.png", details: "Von einer befreundeten Ortswehr übernommen (Standort nicht mehr existent).", serviceFrom: "ca. 1970", serviceUntil: "1985" },
+            { id: "r3", name: "VW Golf", funk: "kein Funkrufname (Dienstfahrzeug)", baujahr: "1985", image: "vwgolf.png", details: "Dienstfahrzeug für Transport- und Führungsaufgaben.", serviceFrom: "1985", serviceUntil: "2000" },
+            { id: "r4", name: "VW T4 (altes MTW)", funk: "Florian Nürnberg 2/14-1 (früher)", baujahr: "2000", image: "vwt4.png", details: "Eigenausbau zum MTW. Nach Unfall 2017 außer Dienst.", serviceFrom: "2000", serviceUntil: "2017" }
         ];
 
-        // Fachgruppen (vorbereitet – Beschreibungen können später angepasst werden)
+        // Fachgruppen
         const specialGroups = [
             { name: "Luftunterstützung / Drohne", description: "Einsatz von Drohnen zur Lageerkundung, Wärmebild und Messflügen. Fahrzeug: GW Drohne." },
             { name: "Umwelt & Gefahrgut", description: "Zuständig für Umwelteinsätze, Öl-/Chemieunfälle, Messtechnik. Fahrzeuge: GW Drohne, FwA-Umwelt." },
             { name: "Verpflegung", description: "Einsatzverpflegung bei Großeinsätzen. Fahrzeug: FwA-Gulasch (TFK 250)." },
-            { name: "Wasserrettung", description: "Unterstützung der Berufsfeuerwehr. Boot 'Helmut' (2/99-1). Zugfahrzeuge: MTW, KdoW." }
+            { name: "Wasserrettung", description: "Unterstützung der Berufsfeuerwehr. Boot 'Helmut' (2/99-1). Zugfahrzeuge: MTW, KdoW." },
+            { name: "Katastrophenschutz", description: "Fahrzeuge für den Katastrophenschutz: GW Drohne, LF 20 KatS." }
         ];
 
         let reports = [];
         let currentPage = "home";
-        let currentDetailVehicle = null;
+        let currentDetailId = null;   // speichert die ID des aktuell geöffneten Fahrzeugs (Detailansicht)
+        let currentDetailIsRetired = false;
 
         // --------------------------------------------------------------
         // SPEICHER / LADEN
@@ -501,50 +501,75 @@
             return str.replace(/[&<>]/g, (m) => (m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;"));
         }
 
-        function getImageSrc(imgName) {
-            if (imgName && imgName !== "") return IMG_PATH + imgName;
-            return PLACEHOLDER;
+        // --------------------------------------------------------------
+        // SEITEN PERSISTENZ (localStorage)
+        // --------------------------------------------------------------
+        function saveCurrentState() {
+            const state = { page: currentPage, detailId: currentDetailId, detailIsRetired: currentDetailIsRetired };
+            localStorage.setItem("ff_state", JSON.stringify(state));
+        }
+
+        function restoreState() {
+            const state = localStorage.getItem("ff_state");
+            if (state) {
+                try {
+                    const s = JSON.parse(state);
+                    currentPage = s.page || "home";
+                    currentDetailId = s.detailId || null;
+                    currentDetailIsRetired = s.detailIsRetired || false;
+                } catch(e) {}
+            }
+            if (currentDetailId) {
+                // Detailseite wiederherstellen
+                const vehicle = currentDetailIsRetired ? vehiclesRetired.find(v => v.id === currentDetailId) : vehiclesActive.find(v => v.id === currentDetailId);
+                if (vehicle) {
+                    showVehicleDetail(vehicle, currentDetailIsRetired);
+                    return;
+                } else {
+                    // Fahrzeug nicht gefunden -> zurück zur Übersicht
+                    currentDetailId = null;
+                    currentPage = "vehicles";
+                }
+            }
+            loadPage(currentPage);
         }
 
         // --------------------------------------------------------------
         // DETAILSEITE
         // --------------------------------------------------------------
         function showVehicleDetail(vehicle, isRetired = false) {
-            currentDetailVehicle = { vehicle, isRetired };
-            renderDetailPage();
+            currentDetailId = vehicle.id;
+            currentDetailIsRetired = isRetired;
+            currentPage = "detail";
+            saveCurrentState();
+            renderDetailPage(vehicle, isRetired);
         }
 
-        function renderDetailPage() {
-            if (!currentDetailVehicle) {
-                loadPage("vehicles");
-                return;
-            }
-            const v = currentDetailVehicle.vehicle;
-            const isRetired = currentDetailVehicle.isRetired;
+        function renderDetailPage(vehicle, isRetired) {
             let html = `
                 <div class="detail-page">
                     <button id="backToVehiclesBtn" class="back-btn">← Zurück zur Fahrzeugübersicht</button>
-                    <div class="detail-header">${escapeHtml(v.name)}</div>
-                    ${v.funk ? `<div class="funk-badge">📻 ${escapeHtml(v.funk)}</div>` : ""}
+                    <div class="detail-header">${escapeHtml(vehicle.name)}</div>
+                    ${vehicle.funk ? `<div class="funk-badge">📻 ${escapeHtml(vehicle.funk)}</div>` : ""}
                     <div class="meta-row">
-                        ${v.baujahr ? `<div><strong>📅 Baujahr:</strong> ${escapeHtml(v.baujahr)}</div>` : ""}
-                        ${v.besatzung ? `<div><strong>👥 Besatzung:</strong> ${escapeHtml(v.besatzung)}</div>` : ""}
-                        ${v.serviceFrom ? `<div><strong>📅 Im Dienst:</strong> ${escapeHtml(v.serviceFrom)} – ${escapeHtml(v.serviceUntil)}</div>` : ""}
+                        ${vehicle.baujahr ? `<div><strong>📅 Baujahr:</strong> ${escapeHtml(vehicle.baujahr)}</div>` : ""}
+                        ${vehicle.besatzung ? `<div><strong>👥 Besatzung:</strong> ${escapeHtml(vehicle.besatzung)}</div>` : ""}
+                        ${vehicle.serviceFrom ? `<div><strong>📅 Im Dienst:</strong> ${escapeHtml(vehicle.serviceFrom)} – ${escapeHtml(vehicle.serviceUntil)}</div>` : ""}
                     </div>
                     <div class="detail-img">
-                        <img src="${getImageSrc(v.image)}" alt="${escapeHtml(v.name)}" loading="lazy">
+                        <img src="${getImageSrc(vehicle.image)}" alt="${escapeHtml(vehicle.name)}" loading="lazy">
                     </div>
                     <div class="detail-description">
                         <strong>Beschreibung / Technik:</strong>
-                        <p>${escapeHtml(v.details || v.text)}</p>
+                        <p>${escapeHtml(vehicle.details || vehicle.text)}</p>
                     </div>
-                    ${!isRetired && v.defect ? `<div class="defect-badge inline-badge">⚠️ techn. Problem / Defekt</div>` : ""}
-                    ${!isRetired && v.notActive ? `<div class="defect-badge inline-badge">⏳ noch nicht im Dienst (Außendienst)</div>` : ""}
+                    ${!isRetired && vehicle.defect ? `<div class="defect-badge inline-badge">⚠️ techn. Problem / Defekt</div>` : ""}
+                    ${!isRetired && vehicle.notActive ? `<div class="defect-badge inline-badge">⏳ noch nicht im Dienst (Außendienst)</div>` : ""}
                 </div>
             `;
             document.getElementById("pageContent").innerHTML = html;
             document.getElementById("backToVehiclesBtn").onclick = () => {
-                currentDetailVehicle = null;
+                currentDetailId = null;
                 loadPage("vehicles");
             };
         }
@@ -554,7 +579,7 @@
         // --------------------------------------------------------------
         function renderHome() {
             return `
-                <div class="hero" style="background-image: url('${getImageSrc("hero.png")}');">
+                <div class="hero" style="background-image: url('${getImageSrc("hero.jpg")}');">
                     <h2>Willkommen bei der Freiwilligen Feuerwehr Nürnberg Stadt</h2>
                     <p>Wir schützen Nürnberg – ehrenamtlich, modern, einsatzbereit.</p>
                 </div>
@@ -563,7 +588,7 @@
                         <div class="card-content"><h3 class="card-title">🚒 Fahrzeuge</h3><p>Unsere aktuelle Flotte und ausgemusterte Fahrzeuge</p><button class="nav-button">Zur Fahrzeugübersicht →</button></div>
                     </div>
                     <div class="card" data-page="specialgroups">
-                        <div class="card-content"><h3 class="card-title">🛠️ Fachgruppen</h3><p>Luftunterstützung, Umwelt, Verpflegung, Wasserrettung</p><button class="nav-button">Zu den Fachgruppen →</button></div>
+                        <div class="card-content"><h3 class="card-title">🛠️ Fachgruppen</h3><p>Luftunterstützung, Umwelt, Verpflegung, Wasserrettung, KatS</p><button class="nav-button">Zu den Fachgruppen →</button></div>
                     </div>
                     <div class="card" data-page="history">
                         <div class="card-content"><h3 class="card-title">📖 Geschichte</h3><p>Über 150 Jahre Feuerwehrgeschichte in Nürnberg</p><button class="nav-button">Zur Geschichte →</button></div>
@@ -620,13 +645,7 @@
             return `
                 <h2>📖 Geschichte der Freiwilligen Feuerwehr Nürnberg</h2>
                 <div class="detail-page">
-                    <p>Die Wurzeln der heutigen Freiwilligen Feuerwehr Nürnberg reichen bis in die Mitte des 19. Jahrhunderts zurück. Um etwa 1850 entstand in der Stadt eine erste organisierte Bürger- und Wachstruktur im Bereich des Brandschutzes.</p>
-                    <p>Im Jahr 1869 wurde diese ursprüngliche Wachstruktur wieder aufgelöst. Zwischen 1898 und 1925 existierte keine eigenständige Struktur. 1925 erfolgte die Neugründung in einer ehemaligen Halle der Berufsfeuerwehr.</p>
-                    <p>Lange Zeit war die Einheit nur Reserveeinheit bei der Berufsfeuerwehr. Das erste eigene Löschfahrzeug war das LF 16 TS (LSHD), das ca. 1965 beschafft wurde. Es folgte ein LF 15 (Magirus-Deutz), das von einer befreundeten Ortswehr übernommen wurde.</p>
-                    <p>Im Jahr 1985 wurde ein VW Golf als Dienstfahrzeug angeschafft, 2000 abgelöst durch einen VW T4 (Eigenausbau zum MTW). 1995 wurde ein LF 16/12 von der BF übernommen.</p>
-                    <p>Nach der Wiedervereinigung wurde eine TSA übernommen, 2001 eine Feldküche, 2008 Umbau zum FwA-Umwelt. 2010 wurde das HLF 16/25 übernommen, 2012 der GW-L1.</p>
-                    <p>2022 erfolgte der Umzug in die provisorische Rettungswache. 2025 kam der GW Drohne hinzu. 2026 stehen große Veränderungen an: GW-L1 und HLF werden außer Dienst gestellt, Ersatz ist geplant. Das LF 20 KatS wartet auf seine Indienststellung.</p>
-                    <p>Heute ist die FF Nürnberg eine moderne, flexibel strukturierte Einheit mit Fahrzeugen aus Feuerwehr, KatS, Umwelttechnik und Wasserrettung.</p>
+                    <p>Die ausführliche Geschichte der FF Nürnberg Stadt wird hier in Kürze erscheinen.</p>
                 </div>
             `;
         }
@@ -668,7 +687,6 @@
                                 <div><strong>Fahrzeuge:</strong> ${r.vehicleNames || "keine"}</div>
                                 ${r.groupLeader ? `<div><strong>Gruppenführer:</strong> ${escapeHtml(r.groupLeader)}</div>` : ""}
                                 ${r.incidentCommander ? `<div><strong>Einsatzleiter:</strong> ${escapeHtml(r.incidentCommander)}</div>` : ""}
-                                ${r.otherOrgs ? `<div><strong>Andere Organisationen:</strong> ${escapeHtml(r.otherOrgs)}</div>` : ""}
                             </div>
                         </div>
                     `).join("")}
@@ -687,8 +705,9 @@
         }
 
         function loadPage(page) {
-            currentDetailVehicle = null;
             currentPage = page;
+            currentDetailId = null;
+            saveCurrentState();
             let html = "";
             if (page === "home") html = renderHome();
             else if (page === "vehicles") html = renderVehicles();
@@ -703,7 +722,7 @@
 
             // Fahrzeugkarten mit Klick-Event
             document.querySelectorAll(".card[data-id]").forEach(card => {
-                const id = parseInt(card.dataset.id);
+                const id = card.dataset.id;
                 const type = card.dataset.type;
                 if (type === "active") {
                     const vehicle = vehiclesActive.find(v => v.id === id);
@@ -805,6 +824,18 @@
         }
 
         // --------------------------------------------------------------
+        // VORLESEN
+        // --------------------------------------------------------------
+        function readCurrentPage() {
+            const content = document.getElementById("pageContent").innerText;
+            if (!content) return;
+            const utterance = new SpeechSynthesisUtterance(content.substring(0, 3000));
+            utterance.lang = "de-DE";
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+
+        // --------------------------------------------------------------
         // EVENT LISTENER & INIT
         // --------------------------------------------------------------
         document.getElementById("burgerBtn").onclick = () => document.getElementById("navLinks").classList.toggle("show");
@@ -815,6 +846,8 @@
             };
         });
         document.getElementById("darkmodeToggle").onclick = () => document.body.classList.toggle("dark");
+        document.getElementById("readBtn").onclick = readCurrentPage;
+        document.getElementById("cityLink").onclick = () => window.open("https://www.nuernberg.de", "_blank");
         document.getElementById("impressumLink").onclick = showImpressum;
         document.getElementById("datenschutzLink").onclick = showDatenschutz;
         document.getElementById("closeModal").onclick = () => document.getElementById("modal").style.display = "none";
@@ -825,7 +858,9 @@
             }
         });
         if (window.matchMedia("(prefers-color-scheme: dark)").matches) document.body.classList.add("dark");
-        loadPage("home");
+
+        // Zustand wiederherstellen
+        restoreState();
     </script>
 </body>
 </html>
