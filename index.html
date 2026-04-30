@@ -377,14 +377,14 @@
         ];
 
         let vehiclesRetired = [
-            { id: 101, name: "LF 16 TS (LSHD)", baujahr: "ca. 1965", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Erstes eigenes Löschfahrzeug (vorher nur Reserveeinheit bei der BF).", serviceFrom: "ca. 1965", serviceUntil: "ca. 1970" },
-            { id: 102, name: "LF 15 (Magirus-Deutz)", baujahr: "1950", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Von einer befreundeten Ortswehr übernommen (Standort nicht mehr existent).", serviceFrom: "ca. 1970", serviceUntil: "1985" },
-            { id: 103, name: "VW Golf", baujahr: "1985", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Dienstfahrzeug für Transport- und Führungsaufgaben.", serviceFrom: "1985", serviceUntil: "2000" },
-            { id: 104, name: "VW T4", baujahr: "2000", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Eigenausbau zum MTW. Nach Unfall außer Dienst.", serviceFrom: "2000", serviceUntil: "2017" }
+            { id: 101, name: "LF 16 TS (LSHD)", funk: "kein Funkrufname (historisch)", baujahr: "ca. 1965", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Erstes eigenes Löschfahrzeug (vorher nur Reserveeinheit bei der BF).", serviceFrom: "ca. 1965", serviceUntil: "ca. 1970" },
+            { id: 102, name: "LF 15 (Magirus-Deutz)", funk: "kein Funkrufname (historisch)", baujahr: "1950", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Von einer befreundeten Ortswehr übernommen (Standort nicht mehr existent).", serviceFrom: "ca. 1970", serviceUntil: "1985" },
+            { id: 103, name: "VW Golf", funk: "kein Funkrufname (Dienstfahrzeug)", baujahr: "1985", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Dienstfahrzeug für Transport- und Führungsaufgaben.", serviceFrom: "1985", serviceUntil: "2000" },
+            { id: 104, name: "VW T4 (MTW)", funk: "Florian Nürnberg 2/14-1 (früher)", baujahr: "2000", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Eigenausbau zum MTW. Nach Unfall 2017 außer Dienst.", serviceFrom: "2000", serviceUntil: "2017" }
         ];
 
         let vehiclesFuture = [
-            { id: 201, name: "GW-MZ", funk: "Florian Nürnberg 2/59-1", baujahr: "2025 (geplant)", besatzung: "1/5", text: "Benefactor Runner, Emsberg-Aufbau", image: "https://cdn.discordapp.com/attachments/1438573886609555546/1438573890367652012/2f36ca9cecb4724077632752d8b20feafb0b2169.png?ex=69f38a56&is=69f238d6&hm=4c1733692dbf2b707238ce6a3004db651c97fcc5ce4e9a6b4a1700b40208f8f8&", details: "Kistensystem, Absturzsicherung", visible: false },
+            { id: 201, name: "GW-MZ", funk: "Florian Nürnberg 2/59-1 (geplant)", baujahr: "2025 (geplant)", besatzung: "1/5", text: "Benefactor Runner, Emsberg-Aufbau", image: "https://cdn.discordapp.com/attachments/1438573886609555546/1438573890367652012/2f36ca9cecb4724077632752d8b20feafb0b2169.png?ex=69f38a56&is=69f238d6&hm=4c1733692dbf2b707238ce6a3004db651c97fcc5ce4e9a6b4a1700b40208f8f8&", details: "Kistensystem, Absturzsicherung", visible: false },
             { id: 202, name: "Neues HLF 20", funk: "Florian Nürnberg 2/40-1 (vorauss.)", baujahr: "2026 (geplant)", besatzung: "1/8", text: "3.000 l Wasser, 2.000 l/min Pumpe", image: "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details: "Haspel verbaut → kein Anhängerbetrieb", visible: false }
         ];
 
@@ -454,6 +454,7 @@
                     <div class="card-img">${v.image ? `<img src="${v.image}" loading="lazy">` : "🚒"}</div>
                     <div class="card-content">
                         <div class="card-title">${escapeHtml(v.name)} <span class="retired-badge">📅 ausgemustert</span></div>
+                        ${v.funk ? `<div class="funk-badge">📻 ${escapeHtml(v.funk)}</div>` : ""}
                         <div class="service-period">Im Dienst: ${v.serviceFrom} – ${v.serviceUntil}</div>
                         <p>${escapeHtml(v.details)}</p>
                         <button class="detail-retired" data-id="${v.id}">Details</button>
@@ -577,7 +578,7 @@
             document.querySelectorAll(".detail-retired").forEach(btn => {
                 const id = parseInt(btn.dataset.id);
                 const vehicle = vehiclesRetired.find(v => v.id === id);
-                if (vehicle) btn.onclick = () => alert(`🚒 ${vehicle.name}\n\nBaujahr: ${vehicle.baujahr}\nIm Dienst: ${vehicle.serviceFrom} – ${vehicle.serviceUntil}\n\n${vehicle.details}`);
+                if (vehicle) btn.onclick = () => alert(`🚒 ${vehicle.name}\n\nFunk: ${vehicle.funk || "kein"}\nBaujahr: ${vehicle.baujahr}\nIm Dienst: ${vehicle.serviceFrom} – ${vehicle.serviceUntil}\n\n${vehicle.details}`);
             });
             document.querySelectorAll(".nav-button").forEach(btn => {
                 btn.onclick = () => loadPage(btn.dataset.page);
@@ -643,6 +644,7 @@
                 let action = prompt("Ausgemusterte Fahrzeuge:\nNeu hinzufügen? (ja/nein)");
                 if (action === "ja") {
                     let name = prompt("Fahrzeugname:");
+                    let funk = prompt("Funkrufname (falls bekannt, sonst leer lassen):");
                     let baujahr = prompt("Baujahr:");
                     let from = prompt("Dienst von (Jahr):");
                     let until = prompt("Dienst bis (Jahr):");
@@ -650,7 +652,7 @@
                     let image = prompt("Bild-URL (optional):", "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg");
                     if (name && baujahr && from && until) {
                         let newId = Math.max(...vehiclesRetired.map(v => v.id), 0) + 1;
-                        vehiclesRetired.push({ id: newId, name, baujahr, image: image || "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details, serviceFrom: from, serviceUntil: until });
+                        vehiclesRetired.push({ id: newId, name, funk: funk || "kein Funkrufname (historisch)", baujahr, image: image || "https://rovocad.de/wp-content/uploads/2017/08/Platzhalter.jpg", details, serviceFrom: from, serviceUntil: until });
                         saveData();
                         alert("Fahrzeug hinzugefügt!");
                         if (currentPage === "vehicles") loadPage("vehicles");
@@ -693,6 +695,3 @@
     </script>
 </body>
 </html>
-
-
-
